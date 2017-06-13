@@ -1,0 +1,6 @@
+{
+  "extends": "eslint-config-fs",
+  "parserOptions": {
+    "sourceType": "module"
+  }
+}
