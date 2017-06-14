@@ -1,6 +1,6 @@
 {
   "name": "j-fetch",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A wrapper around fetch to simplify interacting with JSON API",
   "author": "Ilyas Garaev <vearagi@gmail.com>",
   "license": "MIT",
