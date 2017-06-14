@@ -1,7 +1,9 @@
 import 'es6-promise/auto';
 import 'whatwg-fetch';
 import qs from 'qs';
-import { merge, pickBy, isString } from 'lodash';
+import merge from 'lodash.merge';
+import pickBy from 'lodash.pickby';
+import isString from 'lodash.isstring';
 
 const JSON_HEADERS = {
   'Accept': 'application/json',
