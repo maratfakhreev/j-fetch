@@ -59,6 +59,31 @@ describe('jFetch', () => {
       expect(mock.called()).toBeTruthy();
     });
 
+    it('calls fetch without Content-Type if Content-Type header has set to false', () => {
+      const mock = fetchMock.mock(
+        '/some_url',
+        {
+          headers: {
+            'X-My-Header': 123,
+            'Accept': 'application/json'
+          },
+          ...options
+        }
+      );
+
+      httpFunction({
+        url: '/some_url',
+        headers: {
+          'X-My-Header': 123,
+          'Accept': 'application/json',
+          'Content-Type': false
+        },
+        ...options
+      });
+
+      expect(mock.called()).toBeTruthy();
+    });
+
     it('returns resolved promise if success callback is not passed', () => {
       fetchMock.mock(
         '/some_url',

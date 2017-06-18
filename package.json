@@ -29,6 +29,7 @@
     "es6-promise": "^4.1.0",
     "lodash.isstring": "^4.0.1",
     "lodash.merge": "^4.6.0",
+    "lodash.omit": "^4.5.0",
     "lodash.pickby": "^4.6.0",
     "qs": "^6.4.0",
     "whatwg-fetch": "^2.0.3"

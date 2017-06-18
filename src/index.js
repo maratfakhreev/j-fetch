@@ -1,6 +1,7 @@
 import 'es6-promise/auto';
 import 'whatwg-fetch';
 import qs from 'qs';
+import omit from 'lodash.omit';
 import merge from 'lodash.merge';
 import pickBy from 'lodash.pickby';
 import isString from 'lodash.isstring';
@@ -38,6 +39,11 @@ function requestBody(body, headers) {
 
 function request(payload) {
   const { url, query, ...options } = merge({}, DEFAULT_PAYLOAD, payload);
+
+  if (options.headers['Content-Type'] === false) {
+    options.headers = omit(options.headers, 'Content-Type');
+  }
+
   const { body, headers } = options;
   const urlWithQueryParams = url + filteredParams(query);
   const fetchOptions = merge({}, options, { body: requestBody(body, headers) });
