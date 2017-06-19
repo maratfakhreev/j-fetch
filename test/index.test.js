@@ -1,6 +1,7 @@
 import fetchMock from 'fetch-mock';
 import sinon from 'sinon';
 import jFetch from '../src';
+import jFetchAuth from '../src/auth';
 
 describe('jFetch', () => {
   const headers = {
@@ -65,18 +66,18 @@ describe('jFetch', () => {
             'X-My-Header': 123,
             'Accept': 'application/json'
           },
-          ...options
+          method
         }
       );
 
-      httpFunction({
+      httpMethod({
         url: '/some_url',
         headers: {
           'X-My-Header': 123,
           'Accept': 'application/json',
           'Content-Type': false
         },
-        ...options
+        method
       });
 
       expect(mock.called()).toBeTruthy();
@@ -133,5 +134,61 @@ describe('jFetch', () => {
 
   describe('.delete', () => {
     itBehavesLikeHttpAction({ method: 'DELETE' });
+  });
+
+  describe('auth request', () => {
+    const itBehavesLikeHttpAuthAction = ({ method }) => {
+      jFetch.init({
+        authHeaders: {
+          'X-User-Email': 'some@example.com',
+          'X-User-Token': 'generatedtoken'
+        }
+      });
+
+      const methodName = method.toLowerCase();
+      const httpAuthMethod = jFetchAuth[methodName];
+
+      it('calls fetch with authHeaders', () => {
+        const mock = fetchMock.mock(
+          '/some_url',
+          {},
+          {
+            headers: Object.assign(
+              {},
+              headers,
+              {
+                'X-User-Email': 'some@example.com',
+                'X-User-Token': 'generatedtoken'
+              }
+            ),
+            method
+          }
+        );
+
+        httpAuthMethod({ url: '/some_url' });
+
+        expect(mock.called()).toBeTruthy();
+      });
+    };
+
+    describe('.get', () => {
+      itBehavesLikeHttpAuthAction({ method: 'GET' });
+    });
+
+    describe('.post', () => {
+      itBehavesLikeHttpAuthAction({ method: 'POST' });
+    });
+
+    describe('.put', () => {
+      itBehavesLikeHttpAuthAction({ method: 'PUT' });
+    });
+
+    describe('.patch', () => {
+      itBehavesLikeHttpAuthAction({ method: 'PATCH' });
+    });
+
+    describe('.delete', () => {
+      itBehavesLikeHttpAuthAction({ method: 'DELETE' });
+    });
   });
 });

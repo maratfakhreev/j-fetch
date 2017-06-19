@@ -6,7 +6,7 @@ import merge from 'lodash.merge';
 import pickBy from 'lodash.pickby';
 import isString from 'lodash.isstring';
 
-let defaultParams = {
+const defaultParams = {
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
@@ -20,10 +20,6 @@ let defaultParams = {
       Promise.reject(response);
   }
 };
-
-function init(params) {
-  defaultParams = merge({}, defaultParams, params);
-}
 
 function filteredParams(params) {
   if (!params) return '';
@@ -40,44 +36,48 @@ function requestBody(body, headers) {
 }
 
 function request(payload) {
-  const { url, query, ...options } = merge({}, { headers: defaultParams.headers }, payload);
+  const { url, query, ...options } = merge({}, { headers: http.defaultParams.headers }, payload);
 
   if (options.headers['Content-Type'] === false) {
     options.headers = omit(options.headers, 'Content-Type');
   }
 
-  consst { body, headers } = options;
+  const { body, headers } = options;
   const urlWithQueryParams = url + filteredParams(query);
   const fetchOptions = merge({}, options, { body: requestBody(body, headers) });
 
-  return fetch(urlWithQueryParams, fetchOptions).then(defaultParams.handleResponse);
+  return fetch(urlWithQueryParams, fetchOptions).then(http.defaultParams.handleResponse);
 }
 
-function get(payload) {
+export function init(params) {
+  http.defaultParams = merge({}, defaultParams, params);
+}
+
+export function get(payload) {
   return request(
     merge({}, payload, { method: 'GET' })
   );
 }
 
-function post(payload) {
+export function post(payload) {
   return request(
     merge({}, payload, { method: 'POST' })
   );
 }
 
-function put(payload) {
+export function put(payload) {
   return request(
     merge({}, payload, { method: 'PUT' })
   );
 }
 
-function patch(payload) {
+export function patch(payload) {
   return request(
     merge({}, payload, { method: 'PATCH' })
   );
 }
 
-function deleteRequest(payload) {
+export function deleteRequest(payload) {
   return request(
     merge({}, payload, { method: 'DELETE' })
   );
