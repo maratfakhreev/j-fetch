@@ -6,21 +6,23 @@ import merge from 'lodash.merge';
 import pickBy from 'lodash.pickby';
 import isString from 'lodash.isstring';
 
-const JSON_HEADERS = {
-  'Accept': 'application/json',
-  'Content-Type': 'application/json'
+let defaultParams = {
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  },
+  authHeaders: {},
+  handleResponse(response) {
+    const { status } = response;
+
+    return (status >= 200 && status < 300) ?
+      Promise.resolve(response) :
+      Promise.reject(response);
+  }
 };
 
-const DEFAULT_PAYLOAD = {
-  headers: JSON_HEADERS
-};
-
-function handleResponse(response) {
-  const { status } = response;
-
-  return (status >= 200 && status < 300) ?
-    Promise.resolve(response) :
-    Promise.reject(response);
+function init(params) {
+  defaultParams = merge({}, defaultParams, params);
 }
 
 function filteredParams(params) {
@@ -38,51 +40,52 @@ function requestBody(body, headers) {
 }
 
 function request(payload) {
-  const { url, query, ...options } = merge({}, DEFAULT_PAYLOAD, payload);
+  const { url, query, ...options } = merge({}, { headers: defaultParams.headers }, payload);
 
   if (options.headers['Content-Type'] === false) {
     options.headers = omit(options.headers, 'Content-Type');
   }
 
-  const { body, headers } = options;
+  consst { body, headers } = options;
   const urlWithQueryParams = url + filteredParams(query);
   const fetchOptions = merge({}, options, { body: requestBody(body, headers) });
 
-  return fetch(urlWithQueryParams, fetchOptions).then(http.handleResponse);
+  return fetch(urlWithQueryParams, fetchOptions).then(defaultParams.handleResponse);
 }
 
-export function get(payload) {
+function get(payload) {
   return request(
     merge({}, payload, { method: 'GET' })
   );
 }
 
-export function post(payload) {
+function post(payload) {
   return request(
     merge({}, payload, { method: 'POST' })
   );
 }
 
-export function put(payload) {
+function put(payload) {
   return request(
     merge({}, payload, { method: 'PUT' })
   );
 }
 
-export function patch(payload) {
+function patch(payload) {
   return request(
     merge({}, payload, { method: 'PATCH' })
   );
 }
 
-export function deleteRequest(payload) {
+function deleteRequest(payload) {
   return request(
     merge({}, payload, { method: 'DELETE' })
   );
 }
 
 const http = {
-  handleResponse,
+  init,
+  defaultParams,
   get,
   post,
   put,

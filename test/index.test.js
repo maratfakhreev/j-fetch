@@ -3,27 +3,25 @@ import sinon from 'sinon';
 import jFetch from '../src';
 
 describe('jFetch', () => {
-  const jsonHeaders = {
+  const headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
   };
 
   afterEach(fetchMock.restore);
 
-  const itBehavesLikeHttpAction = options => {
-    const httpFunction = jFetch[options.httpFunction];
+  const itBehavesLikeHttpAction = ({ method }) => {
+    const methodName = method.toLowerCase();
+    const httpMethod = jFetch[methodName];
 
     it('calls fetch with default options', () => {
       const mock = fetchMock.mock(
         '/some_url',
         {},
-        {
-          headers: jsonHeaders,
-          ...options
-        }
+        { headers, method }
       );
 
-      httpFunction({ url: '/some_url' });
+      httpMethod({ url: '/some_url' });
 
       expect(mock.called()).toBeTruthy();
     });
@@ -33,15 +31,15 @@ describe('jFetch', () => {
         '/some_url?option1=foo&option2=bar',
         {},
         {
-          headers: Object.assign({}, jsonHeaders, { 'X-My-Header': 123 }),
+          headers: Object.assign({}, headers, { 'X-My-Header': 123 }),
           body: {
             attr: 'value'
           },
-          ...options
+          method
         }
       );
 
-      httpFunction({
+      httpMethod({
         url: '/some_url',
         headers: {
           'X-My-Header': 123
@@ -53,7 +51,7 @@ describe('jFetch', () => {
           option1: 'foo',
           option2: 'bar'
         },
-        ...options
+        method
       });
 
       expect(mock.called()).toBeTruthy();
@@ -96,7 +94,7 @@ describe('jFetch', () => {
       );
 
       const successSpy = sinon.spy();
-      httpFunction({ url: '/some_url' }).catch(() => {}).then(successSpy)
+      httpMethod({ url: '/some_url' }).catch(() => {}).then(successSpy)
         .then(() => expect(successSpy.called).toBeTruthy());
     });
 
@@ -112,43 +110,28 @@ describe('jFetch', () => {
       );
 
       const errorSpy = sinon.spy();
-      httpFunction({ url: '/some_url' }).then(() => {}).catch(errorSpy)
+      httpMethod({ url: '/some_url' }).then(() => {}).catch(errorSpy)
         .then(() => expect(errorSpy.called).toBeTruthy());
     });
   };
 
   describe('.get', () => {
-    itBehavesLikeHttpAction({
-      method: 'GET',
-      httpFunction: 'get'
-    });
+    itBehavesLikeHttpAction({ method: 'GET' });
   });
 
   describe('.post', () => {
-    itBehavesLikeHttpAction({
-      method: 'POST',
-      httpFunction: 'post'
-    });
+    itBehavesLikeHttpAction({ method: 'POST' });
   });
 
   describe('.put', () => {
-    itBehavesLikeHttpAction({
-      method: 'PUT',
-      httpFunction: 'put'
-    });
+    itBehavesLikeHttpAction({ method: 'PUT' });
   });
 
   describe('.patch', () => {
-    itBehavesLikeHttpAction({
-      method: 'PATCH',
-      httpFunction: 'patch'
-    });
+    itBehavesLikeHttpAction({ method: 'PATCH' });
   });
 
   describe('.delete', () => {
-    itBehavesLikeHttpAction({
-      method: 'DELETE',
-      httpFunction: 'delete'
-    });
+    itBehavesLikeHttpAction({ method: 'DELETE' });
   });
 });
